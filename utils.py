@@ -2,9 +2,11 @@
 import networkx as nx
 import numpy as np
 """
-    vertices : int of vertices
-    edges: int of edges
-    maximu_degree: Maximum degree for the vertices
+Function that return a simple graph
+
+vertices : Number of vertices
+edges: Number of edges
+maximum_degree: Maximum degree number for the vertices
 """
 def generate_graph(vertices : int, edges: int, maximum_grade: int) -> nx.Graph:
     if edges > maximum_grade*vertices/2:
@@ -21,6 +23,20 @@ def generate_graph(vertices : int, edges: int, maximum_grade: int) -> nx.Graph:
             pass
     return G
 
+"""
+Function that generates a random list with the degrees of a simple graph
+taking the limit of the maximum vertice degree.
+
+This use the Handshaking Lemma to ensure the existence of the simple graph
+
+Handshaking Lemma: The sum of all the vertices degree must be equal to 
+two times the number of edges, for a simple graph
+
+vertices : Number of vertices
+edges: Number of edges
+maximum_degree: Maximum degree number for the vertices
+
+"""
 def generate_degree_sequence(vertices : int, edges: int, maximum_grade: int) -> list:
     accumulate_degree = 0
     degree_sequence = np.random.randint(1,maximum_grade, size=(vertices))
