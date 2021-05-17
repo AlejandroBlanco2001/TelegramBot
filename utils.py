@@ -2,6 +2,7 @@ import networkx as nx
 import numpy as np
 import sympy as sp
 
+# Sympy parser use for reading all the natural expresion
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
 transformations = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
@@ -40,7 +41,6 @@ two times the number of edges, for a simple graph
 vertices : Number of vertices
 edges: Number of edges
 maximum_degree: Maximum degree number for the vertices
-
 """
 def generate_degree_sequence(vertices : int, edges: int, maximum_grade: int) -> list:
     accumulate_degree = 0
@@ -55,9 +55,20 @@ given his characteristical polynomial
 
 equation : String that represents the characteristical polynomial
 """
-def resolve_characteristical_polynomial(equation : str) -> list : 
+def resolve_characteristical_polynomial(equation : str) -> sp.Function : 
     x = sp.symbols('x')
     f = parse_expr(equation, transformations=transformations)
     roots = sp.solve(f,x)
-    mult = {root:roots.count(root) for root in roots}
-    print(mult)
+    mults = {root:roots.count(root) for root in roots}
+    function_ans = list()
+    term = 0
+    for root in mults:
+        part_per_coef = list()
+        multiplicty = mults.get(root)
+        for i in range(multiplicty):
+            part_per_coef.append("c_" + str(term) + "*" + "n^" + str(i)) 
+            term = term + 1
+        function_ans.append("("+"+".join(part_per_coef) + ")" + "(" + str(root) + ")" + "^n")
+    ans = "+".join(function_ans)
+    y = parse_expr(ans,transformations=transformations)
+    return y    
