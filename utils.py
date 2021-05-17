@@ -1,6 +1,11 @@
-# File that have all the auxilary functionss
 import networkx as nx
 import numpy as np
+import sympy as sp
+
+from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
+transformations = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
+
+
 """
 Function that return a simple graph
 
@@ -40,7 +45,19 @@ maximum_degree: Maximum degree number for the vertices
 def generate_degree_sequence(vertices : int, edges: int, maximum_grade: int) -> list:
     accumulate_degree = 0
     degree_sequence = np.random.randint(1,maximum_grade, size=(vertices))
-    while sum(degree_sequence) != edges*2:
+    while sum(degree_sequence) != edges*2: # Handshake lema
         degree_sequence = np.random.randint(1,maximum_grade, size=(vertices))        
     return degree_sequence
-    
+
+"""
+Function that generates the solution of recurrency relation
+given his characteristical polynomial
+
+equation : String that represents the characteristical polynomial
+"""
+def resolve_characteristical_polynomial(equation : str) -> list : 
+    x = sp.symbols('x')
+    f = parse_expr(equation, transformations=transformations)
+    roots = sp.solve(f,x)
+    mult = {root:roots.count(root) for root in roots}
+    print(mult)

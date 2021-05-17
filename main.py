@@ -61,11 +61,15 @@ def menu(update: Update, context: CallbackContext) -> None:
         context.bot.send_message(chat_id=update.effective_chat.id, text= "El comando de Subsecuencia se encarga de recibir" + 
                                                                         "tal tal tal tal")
 
-
 def send_help(update: Update, context: CallbackContext) -> None:
     pass
 
-def grafo(update, context):
+def recurrencia(update: Update, context: CallbackContext) -> None:
+    equation = " ".join(context.args).strip().split(" ")[0]
+    ans = resolve_characteristical_polynomial(equation)
+    pass 
+
+def grafo(update: Update, context: CallbackContext) -> None:
     vertices,aristas,maximum_degree =  " ".join(context.args).strip().split(" ")
     try:
         vertices = int(vertices)
@@ -87,12 +91,18 @@ def main():
     updater = Updater(config.TOKEN, use_context=True)
     dp = updater.dispatcher
     
+    # 
     dp.add_handler(CommandHandler('Timbrar', start))
     dp.add_handler(CommandHandler('LlamaFiscalia', send_help))
     dp.add_handler(CommandHandler("dameOpciones", send_options))
+    
+    # Math functions
     dp.add_handler(CommandHandler('grafo', grafo))
+    dp.add_handler(CommandHandler('recurrencia', recurrencia))
+    
     # Listener of the toolbox command
     dp.add_handler(CallbackQueryHandler(menu))
+    
     # Listener for not commands entry 
     dp.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
 
