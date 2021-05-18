@@ -75,8 +75,18 @@ def recurrencia(update: Update, context: CallbackContext) -> None:
     sp.preview(function,viewer="file",filename="function.png", euler=False,
             dvioptions=["-T", "tight", "-z", "0", "--truecolor", "-D 600", "-bg", "Transparent"])
     bot.send_photo(chat_id=update.effective_chat.id, photo=open(
-            "function.png", 'rb'), caption=f"Función que representa el polinomio caracteristico {equation}" + "\n" + str(function))
+            "function.png", 'rb'), caption=f"Función que representa el polinomio caracteristico {equation}")
     
+def recurrencia_valor_inicial(update: Update, context: CallbackContext) -> None:
+    equation = " ".join(context.args[0]).strip()
+    initial_values = context.args[1]
+    function = resolve_characteristical_polynomial_initial_value(equation,initial_values)
+    sp.preview(function,viewer="file",filename="function.png", euler=False,
+            dvioptions=["-T", "tight", "-z", "0", "--truecolor", "-D 600", "-bg", "Transparent"])
+    bot.send_photo(chat_id=update.effective_chat.id, photo=open(
+            "function.png", 'rb'), caption=f"Función que representa el polinomio caracteristico {equation}" +
+                f"con valores iniciales {str(initial_values)}")
+        
 def grafo(update: Update, context: CallbackContext) -> None:
     vertices, aristas, maximum_degree = context.args
     try:
@@ -120,7 +130,7 @@ def main():
     updater = Updater(config.TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    # Helpe functions
+    # Helper functions
     dp.add_handler(CommandHandler('Timbrar', start))
     dp.add_handler(CommandHandler('LlamaFiscalia', send_help))
     dp.add_handler(CommandHandler("dameOpciones", send_options))
@@ -128,8 +138,8 @@ def main():
     # Math functions
     dp.add_handler(CommandHandler('grafo', grafo))
     dp.add_handler(CommandHandler('recurrencia', recurrencia))
-    dp.add_handler(CommandHandler("fibonacci", fibonazzi))
-
+    dp.add_handler(CommandHandler('fibonacci', fibonazzi))
+    dp.add_handler(CommandHandler('recurrenciaVi', recurrencia_valor_inicial))
 
     # Listener of the toolbox command
     dp.add_handler(CallbackQueryHandler(menu))
@@ -137,7 +147,6 @@ def main():
     # Listener for not commands entry
     dp.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
 
-    dp.add_handler(CommandHandler('test', help))
     updater.start_polling()
     updater.idle()
 

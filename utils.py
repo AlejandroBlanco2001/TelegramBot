@@ -81,10 +81,18 @@ initial_values: base cases of the recurrence relation
 """
 def resolve_characteristical_polynomial_initial_value(equation : str, initial_values: int) -> sp.Function :
     n = sp.symbols('n')
+    initial_values = [int(item) for item in initial_values.split(",")]
+    print(initial_values)
     function_with_constants = resolve_characteristical_polynomial(equation)
+    equations = []
+    term = 0
     for value in initial_values:
-        print(function_with_constants.subs(n,value))
-        
+        equations.append(sp.Eq(function_with_constants.subs(n,term),value))    
+        term = term + 1
+    value_constants = sp.solve(equations)
+    for constant in value_constants:
+        function_with_constants = function_with_constants.subs(constant,value_constants[constant])
+    return function_with_constants
 """
 Function that given a sequence of numbers in ascending order
 finds one subsequence that follows the Fibonacci sequence principle
