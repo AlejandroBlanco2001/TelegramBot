@@ -79,7 +79,6 @@ given his characteristical polynomial
 equation : String that represents the characteristical polynomial
 initial_values: base cases of the recurrence relation
 """
-# Terminar mañana
 def resolve_characteristical_polynomial_initial_value(equation : str, initial_values: int) -> sp.Function :
     n = sp.symbols('n')
     function_with_constants = resolve_characteristical_polynomial(equation)
@@ -87,24 +86,38 @@ def resolve_characteristical_polynomial_initial_value(equation : str, initial_va
         print(function_with_constants.subs(n,value))
         
 """
+Function that given a sequence of numbers in ascending order
+finds one subsequence that follows the Fibonacci sequence principle
 
+Fibonacci sequence principle: The next number of the sequence
+is the sum of the two preview number. F_n = F_n-1 - F_n-2 
+
+sequence: List that contains the sequence
 """
 def sub_fibonacci_sequence(sequence: list) -> list:
     ans = list()
-    inc = 1
     full_list = list()
     for i in range(len(sequence)-1):
-        ans.extend([sequence[i],sequence[i+inc]])
-        next_number = ans[-1] + ans[-2]
-        while next_number in sequence:
-            ans.append(next_number)
-        if ans > 2:
-            full_list.append(ans)
-        ans.clear()
-    return full_list
+        for j in range(i+1,len(sequence)-1):
+            if len(ans) == 0:
+                ans.extend([sequence[i],sequence[j]])
+            curr = ans[-1] + ans[-2]
+            while curr in sequence:
+                ans.append(curr)
+                curr = ans[-1] + ans[-2]
+            if len(ans) > 2:
+                full_list.append(ans)
+            ans = list()
+    if len(full_list) == 1:
+        return full_list[0]
+    else:
+        return full_list[np.random.randint(0,len(full_list))]
 
 """
-Comentar mañana / más tarde
+Logic function that checks if the a sequence of number is in
+ascending order
+
+sequence: List containing the sequence of numbers
 """
 def checkOrder(sequence: list) -> bool:
     for i in range(len(sequence)-1):

@@ -104,8 +104,12 @@ def grafo(update: Update, context: CallbackContext) -> None:
                                 text="No es posible hacer un grafo con los parametros dados.")
 
 def fibonazzi(update: Update, context: CallbackContext) -> None:
-    if checkOrder(context.args):
-        subsequence = sub_fibonacci_sequence(context.args)
+    sequence = [int(number) for number in context.args]
+    if checkOrder(sequence):
+        subsequence = sub_fibonacci_sequence(sequence)
+        bot.send_message(chat_id=update.effective_chat.id,
+                                text="Una posible subsecuencia que cumpla el principio de fibonacci a partir de " + str(sequence) + " es: \n"+
+                                str(subsequence))
     else:
         bot.send_message(chat_id=update.effective_chat.id, text="La secuencia debe estar en orden ascedente")
         
