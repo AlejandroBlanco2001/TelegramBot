@@ -1,5 +1,6 @@
 import logging
 import config
+import sys
 import sympy as sp
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -10,10 +11,9 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 
 logger = logging.getLogger(__name__)
 
-
 bot = Bot(token=config.TOKEN)
 
-def start(update, context):
+def start(update: Update, context: CallbackContext) -> None:
     username = update.message.chat["first_name"]
     bot.send_message(chat_id=update.effective_chat.id, text=f"Aló, con Dorian, {username} \n" +
                                                                     "cuento con los siguentes comandos \n" +
@@ -24,10 +24,8 @@ def start(update, context):
                                                                     "\t /subsecuencia \n" +
                                                                     "\t /dameOpciones")
 
-
-def echo(update, context):
+def echo(update: Update, context: CallbackContext) -> None:
     start(update, context)
-
 
 def send_options(update: Update, context: CallbackContext) -> None:
     keyboard = [
@@ -43,10 +41,8 @@ def send_options(update: Update, context: CallbackContext) -> None:
     reply = InlineKeyboardMarkup(keyboard)
     update.message.reply_text("Elige una función", reply_markup=reply)
 
-
 def send_help(update: Update, context: CallbackContext) -> None:
     return None
-
 
 def menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -70,30 +66,19 @@ def menu(update: Update, context: CallbackContext) -> None:
         bot.send_message(chat_id=update.effective_chat.id, text="El comando de Subsecuencia se encarga de recibir" +
                                                                         "tal tal tal tal")
 
-
 def send_help(update: Update, context: CallbackContext) -> None:
     pass
 
-
 def recurrencia(update: Update, context: CallbackContext) -> None:
-    equation = " ".join(context.args).strip().split(" ")[0]
+    equation = " ".join(context.args).strip()
     function = resolve_characteristical_polynomial(equation)
-    latex = sp.latex(function)
-    print(latex)
-    plt.text(0, 0.6, r"$%s$" % latex, fontsize = 40)                                  
-
-    #hide axes                                                                      
-    fig = plt.gca()                                                                 
-    fig.axes.get_xaxis().set_visible(False)                                         
-    fig.axes.get_yaxis().set_visible(False)                                         
-    plt.savefig("function.png")
+    sp.preview(function,viewer="file",filename="function.png", euler=False,
+            dvioptions=["-T", "tight", "-z", "0", "--truecolor", "-D 600", "-bg", "Transparent"])
     bot.send_photo(chat_id=update.effective_chat.id, photo=open(
             "function.png", 'rb'), caption=f"Función que representa el polinomio caracteristico {equation}" + "\n" + str(function))
-
-
+    
 def grafo(update: Update, context: CallbackContext) -> None:
-    vertices, aristas, maximum_degree = " ".join(
-        context.args).strip().split(" ")
+    vertices, aristas, maximum_degree = context.args
     try:
         vertices = int(vertices)
         aristas = int(aristas)
@@ -101,11 +86,14 @@ def grafo(update: Update, context: CallbackContext) -> None:
     except Exception:
         bot.send_message(chat_id=update.effective_chat.id,
                                 text="Alguno de los valores ingresados no es un numero")
-    if vertices < 0 or aristas < 0 or maximum_degree < 0:
+    if vertices <= 0 or aristas <= 0 or maximum_degree <= 0:
         bot.send_message(chat_id=update.effective_chat.id, text="Algun valor ingresado es negativo,"
                                 + "por favor ingresa numeros positivos")
+    bot.send_message(chat_id=update.effective_chat.id,
+                                text="Cogela con su avena y su pitillo, estoy procesando el grafo")
     Graph = generate_graph(vertices, aristas, maximum_degree)
     if Graph != None:
+        plt.clf() # In case that the figure has something in it 
         nx.draw(Graph)
         plt.savefig("graph.png")
         plt.close()
@@ -115,7 +103,12 @@ def grafo(update: Update, context: CallbackContext) -> None:
         bot.send_message(chat_id=update.effective_chat.id,
                                 text="No es posible hacer un grafo con los parametros dados.")
 
-
+def fibonazzi(update: Update, context: CallbackContext) -> None:
+    if checkOrder(context.args):
+        subsequence = sub_fibonacci_sequence(context.args)
+    else:
+        bot.send_message(chat_id=update.effective_chat.id, text="La secuencia debe estar en orden ascedente")
+        
 def main():
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -123,7 +116,7 @@ def main():
     updater = Updater(config.TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    #
+    # Helpe functions
     dp.add_handler(CommandHandler('Timbrar', start))
     dp.add_handler(CommandHandler('LlamaFiscalia', send_help))
     dp.add_handler(CommandHandler("dameOpciones", send_options))
@@ -131,6 +124,8 @@ def main():
     # Math functions
     dp.add_handler(CommandHandler('grafo', grafo))
     dp.add_handler(CommandHandler('recurrencia', recurrencia))
+    dp.add_handler(CommandHandler("fibonacci", fibonazzi))
+
 
     # Listener of the toolbox command
     dp.add_handler(CallbackQueryHandler(menu))
@@ -141,7 +136,6 @@ def main():
     dp.add_handler(CommandHandler('test', help))
     updater.start_polling()
     updater.idle()
-
 
 if __name__ == '__main__':
     main()
