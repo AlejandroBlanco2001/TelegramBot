@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import sympy as sp
+import random
 
 # Sympy parser use for reading all the natural expresion
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
@@ -21,12 +22,13 @@ def generate_graph(vertices : int, edges: int, maximum_grade: int) -> nx.Graph:
     elif edges == vertices*(vertices-1)/2: # Complete graph
         return nx.complete_graph(vertices)
     else:
-        sequence = generate_degree_sequence(vertices,edges,maximum_grade)
-        try:
-            G = nx.random_degree_sequence_graph(sequence)
-        except Exception:
-            return None
-    return G
+        while True:
+            sequence = generate_degree_sequence(vertices,edges,maximum_grade)
+            try:
+                G = nx.random_degree_sequence_graph(sequence)
+                return G
+            except Exception:
+                pass
 
 """
 Function that generates a random list with the degrees of a simple graph
@@ -43,9 +45,12 @@ maximum_degree: Maximum degree number for the vertices
 """
 def generate_degree_sequence(vertices : int, edges: int, maximum_grade: int) -> list:
     accumulate_degree = 0
-    degree_sequence = np.random.randint(maximum_grade+1, size=(vertices)) 
-    while sum(degree_sequence) != edges*2: # Handshake lemma
-        degree_sequence = np.random.randint(maximum_grade+1, size=(vertices))        
+    degree_sequence = [0] * vertices
+    for i in range(vertices): 
+        if accumulate_degree == 2 * edges: # Handshaking lemma
+            continue
+        degree_sequence[i] = random.randint(0,min(vertices-1,maximum_grade,edges,2*edges-accumulate_degree))
+        accumulate_degree += degree_sequence[i]  
     return degree_sequence
 
 """
@@ -108,7 +113,7 @@ def sub_fibonacci_sequence(sequence: list) -> list:
     for i in range(len(sequence)-1):
         for j in range(i+1,len(sequence)-1):
             if len(ans) == 0:
-                ans.extend([sequence[i],sequence[j]])
+                ans = [sequence[i],sequence[j]]
             curr = ans[-1] + ans[-2]
             while curr in sequence:
                 ans.append(curr)
