@@ -27,6 +27,9 @@ def start(update: Update, context: CallbackContext) -> None:
                                                                 "de escribir /LlamaFiscalia y te explicaré a detalle"+
                                                                 " cada una de mis capacidades.")
 
+def help_start(update: Update, context: CallbackContext) -> None:
+    start(update,context)
+
 def echo(update: Update, context: CallbackContext) -> None:
     start(update, context)
 
@@ -69,7 +72,8 @@ def recurrencia_valor_inicial(update: Update, context: CallbackContext) -> None:
                 f"con valores iniciales {str(initial_values)}")
         
 def grafo(update: Update, context: CallbackContext) -> None:
-    if len(context.args) < 0 or len(context.args) > 3:
+    print(len(context.args))
+    if len(context.args) == 0 or len(context.args) > 3:
         bot.send_message(chat_id=update.effective_chat.id,text="Por favor ingrese tres parametros")
     vertices, aristas, maximum_degree = context.args
     try:
@@ -100,7 +104,7 @@ def grafo(update: Update, context: CallbackContext) -> None:
                                 text="No es posible hacer un grafo simple con los parametros dados.")
 
 def fibonazzi(update: Update, context: CallbackContext) -> None:
-    if len(context.args) == 0 or len(context.args) < 2:
+    if len(context.args) == 0 or len(context.args) <= 2:
         bot.send_message(chat_id=update.effective_chat.id,text="Por favor ingrese una serie con más de dos valores")
     sequence = [int(number) for number in context.args]
     if checkOrder(sequence):
@@ -121,12 +125,13 @@ def main():
     # Helper functions
     dp.add_handler(CommandHandler('Timbrar', start))
     dp.add_handler(CommandHandler('LlamaFiscalia', send_help))
-
+    dp.add_handler(CommandHandler('start',help_start))
+    
     # Math functions
     dp.add_handler(CommandHandler('grafo', grafo))
     dp.add_handler(CommandHandler('recurrencia', recurrencia))
     dp.add_handler(CommandHandler('fibonacci', fibonazzi))
-    dp.add_handler(CommandHandler('recurrenciaVi', recurrencia_valor_inicial))
+    dp.add_handler(CommandHandler('recurrenciavi', recurrencia_valor_inicial))
     
     # Listener for not commands entry
     dp.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
